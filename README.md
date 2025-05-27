@@ -5,9 +5,10 @@ Setup
 Clone the repository: git clone https://github.com/rejo132/personal_finance
 Install dependencies: pipenv install
 Enter virtual environment: pipenv shell
-Initialize database: cd lib/db && alembic upgrade head
+Initialize database: alembic revision --autogenerate -m "initial" && alembic upgrade head
 (Optional) Seed data: python lib/db/seed.py
 Run CLI: python -m lib.cli
+Run tests: pipenv run pytest -v tests/test_helpers.py
 
 Files
 
@@ -38,11 +39,11 @@ Transaction: id, amount, type, category_id, user_id, date, description.
 
 Design Decisions
 
-Click: Chosen for its simplicity and robust option parsing compared to Argparse.
-SQLAlchemy ORM: Used for type safety and relationships, with cascade deletes to ensure data integrity.
-SQLite: Lightweight database suitable for a CLI application.
-Modular Structure: Separates CLI, logic, and models for maintainability.
-Unit Tests: Added to ensure helper function reliability.
+Click: Chosen for simplicity and robust option parsing.
+SQLAlchemy ORM: Used for type safety and relationships, with cascade deletes.
+SQLite: Lightweight database for CLI.
+Modular Structure: Separates concerns for maintainability.
+Unit Tests: Ensure helper function reliability.
 
 Learning Goals
 
