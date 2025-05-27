@@ -22,28 +22,26 @@ def register(username, email):
         except ValueError as e:
             click.echo(f"Error: {e}")
 
-@click.command()
-@click.option('--id', prompt='User ID', type=int, help='User ID to delete')
-def delete_user(id):
+@click.command(name='delete-user')
+@click.option('--user-id', prompt='User ID', type=int, help='User ID to delete')
+def delete_user_command(user_id):
     with Session() as session:
         try:
-            user = delete_user(session, id)
+            user = delete_user(session, user_id)
             if user:
                 click.echo(f"User {user.username} deleted successfully!")
             else:
                 click.echo("User not found.")
         except ValueError as e:
-                click.echo(f"Error: {e}")
+            click.echo(f"Error: {e}")
 
-@click.command()
-def list_users():
-    with Session():
-        as session:
+@click.command(name='list-users')
+def list_users_command():
+    with Session() as session:
         users = list_users(session)
         click.echo("\nAll Users:")
         for user in users:
-            click.echo(f"ID: {user.id}, Username: {user.id}, Email: {user.username}, Email:")
- {user.email}")
+            click.echo(f"ID: {user.id}, Username: {user.username}, Email: {user.email}")
 
 @click.command()
 @click.option('--username', prompt='Username', help='Username to find')
@@ -56,7 +54,7 @@ def find_user(username):
             click.echo("User not found.")
 
 @click.command()
-@click.option('--username', prompt='Username', help='User to add category for')
+@click.option('--username', prompt='Username', help='Username')
 @click.option('--name', prompt='Category Name', help='Category name')
 def add_category(username, name):
     with Session() as session:
@@ -99,9 +97,10 @@ def exit():
     import sys
     sys.exit()
 
+# Register all commands
 cli.add_command(register)
-cli.add_command(delete_user)
-cli.add_command(list_users)
+cli.add_command(delete_user_command)
+cli.add_command(list_users_command)
 cli.add_command(find_user)
 cli.add_command(add_category)
 cli.add_command(add_transaction)
