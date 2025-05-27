@@ -1,111 +1,97 @@
 import click
 from lib.db import Session
-from lib.db.models import User
-from lib.helpers import (
-    create_user, create_category, create_transaction,
-    delete_user, list_users, find_user_by_username,
-    generate_expense_report
-)
+from lib.helpers import create_user, delete_user, list_users, find_user_by_username, create_category, create_transaction, generate_expense_report
 
 @click.group()
 def cli():
+    """Personal Finance Manager CLI"""
     pass
 
-@click.command()
+@cli.command()
 @click.option('--username', prompt='Username', help='Unique username')
 @click.option('--email', prompt='Email', help='User email')
 def register(username, email):
+    """Register a new user"""
     with Session() as session:
         try:
-            create_user(session, username, email)
-            click.echo(f"User {username} created successfully!")
+            user = create_user(session, username, email)
+            click.echo(f"User {user.username} created with ID {user.id}")
         except ValueError as e:
             click.echo(f"Error: {e}")
 
-@click.command(name='delete-user')
-@click.option('--user-id', prompt='User ID', type=int, help='User ID to delete')
-def delete_user_command(user_id):
+@cli.command(name='delete-user')
+@click.option('--user-id', type=int, prompt='User ID', help='ID of user to delete')
+def delete_user_cmd(user_id):
+    """Delete a user by ID"""
     with Session() as session:
-        try:
-            user = delete_user(session, user_id)
-            if user:
-                click.echo(f"User {user.username} deleted successfully!")
-            else:
-                click.echo("User not found.")
-        except ValueError as e:
-            click.echo(f"Error: {e}")
+        user = delete_user(session, user_id)
+        if user:
+            click.echo(f"User {user.username} deleted successfully!")
+        else:
+            click.echo("User not found")
 
-@click.command(name='list-users')
-def list_users_command():
+@cli.command(name='list-users')
+def list_users_cmd():
+    """List all users"""
     with Session() as session:
         users = list_users(session)
-        click.echo("\nAll Users:")
         for user in users:
             click.echo(f"ID: {user.id}, Username: {user.username}, Email: {user.email}")
 
-@click.command()
+@cli.command()
 @click.option('--username', prompt='Username', help='Username to find')
 def find_user(username):
+    """Find a user by username"""
     with Session() as session:
         user = find_user_by_username(session, username)
         if user:
             click.echo(f"ID: {user.id}, Username: {user.username}, Email: {user.email}")
         else:
-            click.echo("User not found.")
+            click.echo("User not found")
 
-@click.command()
-@click.option('--username', prompt='Username', help='Username')
-@click.option('--name', prompt='Category Name', help='Category name')
+@cli.command()
+@click.option('--username', prompt='Username', help='Username of the user')
+@click.option('--name', prompt='Category name', help='Name of the category')
 def add_category(username, name):
+    """Add a category for a user"""
     with Session() as session:
         try:
-            create_category(session, username, name)
-            click.echo(f"Category {name} created successfully!")
+            category = create_category(session, username, name)
+            click.echo(f"Category {category.name} created successfully!")
         except ValueError as e:
             click.echo(f"Error: {e}")
 
-@click.command()
-@click.option('--username', prompt='Username', help='User to add transaction for')
-@click.option('--amount', prompt='Amount', type=float, help='Transaction amount')
-@click.option('--type', prompt='Type', type=click.Choice(['income', 'expense']), help='Transaction type')
+@cli.command()
+@click.option('--username', prompt='Username', help='Username of the user')
+@click.option('--amount', type=float, prompt='Amount', help='Transaction amount')
+@click.option('--type', prompt='Type (income/expense)', help='Transaction type')
 @click.option('--category', prompt='Category', help='Category name')
 @click.option('--description', prompt='Description', help='Transaction description')
 @click.option('--date', prompt='Date (YYYY-MM-DD)', help='Transaction date')
 def add_transaction(username, amount, type, category, description, date):
+    """Add a transaction for a user"""
     with Session() as session:
         try:
-            create_transaction(session, username, amount, type, category, description, date)
-            click.echo("Transaction added successfully!")
+            transaction = create_transaction(session, username, amount, type, category, description, date)
+            click.echo(f"Transaction added successfully!")
         except ValueError as e:
             click.echo(f"Error: {e}")
 
-@click.command()
-@click.option('--username', prompt='Username', help='User to view report for')
+@cli.command()
+@click.option('--username', prompt='Username', help='Username for the report')
 def view_report(username):
+    """View expense report by category for a user"""
     with Session() as session:
         try:
             report = generate_expense_report(session, username)
-            click.echo("\nExpense Report by Category:")
-            for category, total in report.items():
-                click.echo(f"{category}: ${total:.2f}")
+            if report:
+                click.echo("Expense Report by Category:")
+                for category, total in report.items():
+                    click.echo(f"{category}: ${total:.2f}")
+            else:
+                click.echo("No expenses found")
         except ValueError as e:
             click.echo(f"Error: {e}")
-
-@click.command()
-def exit():
-    click.echo("Goodbye!")
-    import sys
-    sys.exit()
-
-# Register all commands
-cli.add_command(register)
-cli.add_command(delete_user_command)
-cli.add_command(list_users_command)
-cli.add_command(find_user)
-cli.add_command(add_category)
-cli.add_command(add_transaction)
-cli.add_command(view_report)
-cli.add_command(exit)
 
 if __name__ == '__main__':
     cli()

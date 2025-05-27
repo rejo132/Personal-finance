@@ -17,6 +17,7 @@ lib/db/seed.py: Seeds database with test data.
 lib/helpers.py: Business logic for CRUD and reports.
 lib/db/init.py: SQLAlchemy engine and session setup.
 lib/debug.py: Debugging utilities.
+tests/test_helpers.py: Unit tests for helper functions.
 
 CLI Commands
 
@@ -34,6 +35,14 @@ Data Model
 User: id, username (unique), email. One-to-many with Categories, Transactions.
 Category: id, name, user_id. One-to-many with Transactions.
 Transaction: id, amount, type, category_id, user_id, date, description.
+
+Design Decisions
+
+Click: Chosen for its simplicity and robust option parsing compared to Argparse.
+SQLAlchemy ORM: Used for type safety and relationships, with cascade deletes to ensure data integrity.
+SQLite: Lightweight database suitable for a CLI application.
+Modular Structure: Separates CLI, logic, and models for maintainability.
+Unit Tests: Added to ensure helper function reliability.
 
 Learning Goals
 
