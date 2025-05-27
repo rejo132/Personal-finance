@@ -7,7 +7,7 @@ Install dependencies: pipenv install
 Enter virtual environment: pipenv shell
 Initialize database: cd lib/db && alembic upgrade head
 (Optional) Seed data: python lib/db/seed.py
-Run CLI: python lib/cli.py
+Run CLI: python -m lib.cli
 
 Files
 
@@ -21,7 +21,7 @@ lib/debug.py: Debugging utilities.
 CLI Commands
 
 register --username <name> --email <email>
-delete-user --id <id>
+delete-user --user-id <id>
 list-users
 find-user --username <name>
 add-category --username <name> --name <category>
